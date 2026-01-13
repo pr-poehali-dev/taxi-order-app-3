@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -8,13 +9,18 @@ import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 
 const Index = () => {
+  const navigate = useNavigate();
+  const mapRef = useRef<HTMLDivElement>(null);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
   const [showOrder, setShowOrder] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [mapPosition, setMapPosition] = useState({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   const taxis = [
-    { id: 1, name: 'Алексей М.', rating: 4.9, distance: '0.8 км', time: '2 мин', car: 'Toyota Camry', color: 'Черный', number: 'А777АА', x: 30, y: 40 },
+    { id: 1, name: 'Алексей М.', rating: 4.9, distance: '0.8 км', time: '2 мин', car: 'Toyota Camry', color: 'Черный', number: 'А777АА', x: 30, y: 40, photo: 'https://cdn.poehali.dev/projects/3dc4722d-50cc-447f-832e-19049818b991/files/2460b228-1347-4b65-9915-10f44f5dccd6.jpg' },
     { id: 2, name: 'Михаил К.', rating: 5.0, distance: '1.2 км', time: '4 мин', car: 'Hyundai Solaris', color: 'Белый', number: 'В123ВВ', x: 60, y: 30 },
     { id: 3, name: 'Дмитрий П.', rating: 4.8, distance: '1.5 км', time: '5 мин', car: 'Kia Rio', color: 'Серебристый', number: 'С555СС', x: 45, y: 60 },
     { id: 4, name: 'Андрей С.', rating: 4.9, distance: '0.5 км', time: '1 мин', car: 'Skoda Octavia', color: 'Синий', number: 'Е999ЕЕ', x: 70, y: 50 },
@@ -23,8 +29,6 @@ const Index = () => {
   const paymentMethods = [
     { id: 'card', name: 'Банковская карта', icon: 'CreditCard' },
     { id: 'cash', name: 'Наличные', icon: 'Banknote' },
-    { id: 'wallet', name: 'Электронный кошелек', icon: 'Wallet' },
-    { id: 'apple', name: 'Apple Pay', icon: 'Smartphone' },
   ];
 
   const calculatePrice = () => {
@@ -47,6 +51,23 @@ const Index = () => {
     }, 2000);
   };
 
+  const handleMapMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - mapPosition.x, y: e.clientY - mapPosition.y });
+  };
+
+  const handleMapMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    setMapPosition({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y
+    });
+  };
+
+  const handleMapMouseUp = () => {
+    setIsDragging(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="container mx-auto px-4 py-6 max-w-7xl">
@@ -58,9 +79,15 @@ const Index = () => {
               </h1>
               <p className="text-muted-foreground mt-1">Быстро и безопасно</p>
             </div>
-            <Button variant="outline" size="icon" className="rounded-full">
-              <Icon name="User" size={20} />
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => navigate('/driver-registration')}>
+                <Icon name="Car" size={18} className="mr-2" />
+                Стать водителем
+              </Button>
+              <Button variant="outline" size="icon" className="rounded-full">
+                <Icon name="User" size={20} />
+              </Button>
+            </div>
           </div>
         </header>
 
@@ -119,7 +146,7 @@ const Index = () => {
                       <Icon name="Wallet" size={16} className="text-accent" />
                       Способ оплаты
                     </label>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="flex gap-3">
                       {paymentMethods.map((method) => (
                         <button
                           key={method.id}
@@ -152,43 +179,79 @@ const Index = () => {
             {showOrder && (
               <Card className="border-secondary/20 shadow-lg shadow-secondary/5 animate-scale-in">
                 <CardContent className="p-6">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center animate-pulse-soft">
-                      <Icon name="Car" size={24} />
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="relative">
+                      <img 
+                        src={taxis[0].photo} 
+                        alt="Водитель"
+                        className="w-20 h-20 rounded-full object-cover border-4 border-primary/20"
+                      />
+                      <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-4 border-background" />
                     </div>
-                    <div>
-                      <h3 className="font-heading font-bold text-lg">Алексей М.</h3>
-                      <div className="flex items-center gap-2">
-                        <Icon name="Star" size={14} className="text-accent fill-accent" />
-                        <span className="text-sm font-semibold">4.9</span>
+                    <div className="flex-1">
+                      <h3 className="font-heading font-bold text-xl mb-1">Алексей М.</h3>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1">
+                          <Icon name="Star" size={16} className="text-accent fill-accent" />
+                          <span className="text-sm font-semibold">4.9</span>
+                        </div>
+                        <Separator orientation="vertical" className="h-4" />
+                        <span className="text-sm text-muted-foreground">2348 поездок</span>
                       </div>
                     </div>
-                    <div className="ml-auto text-right">
-                      <p className="text-2xl font-heading font-bold text-primary">2 мин</p>
+                    <div className="text-right">
+                      <p className="text-3xl font-heading font-bold text-primary mb-1">2 мин</p>
                       <p className="text-xs text-muted-foreground">до прибытия</p>
                     </div>
                   </div>
-                  
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Автомобиль</span>
-                      <span className="font-semibold">Toyota Camry (Черный)</span>
+
+                  <div className="relative h-48 rounded-lg overflow-hidden mb-4 bg-[#2d3436]">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-center space-y-2">
+                        <Icon name="Route" size={48} className="mx-auto text-primary/50" />
+                        <p className="text-sm text-muted-foreground">Маршрут строится...</p>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Номер</span>
-                      <Badge variant="outline">А777АА</Badge>
+                    <svg className="absolute inset-0 w-full h-full opacity-30">
+                      <path d="M 20,120 Q 80,60 150,120" stroke="hsl(var(--primary))" strokeWidth="4" fill="none" strokeDasharray="8,8">
+                        <animate attributeName="stroke-dashoffset" from="0" to="-16" dur="1s" repeatCount="indefinite" />
+                      </path>
+                      <circle cx="20" cy="120" r="8" fill="hsl(var(--primary))" />
+                      <circle cx="150" cy="120" r="8" fill="hsl(var(--secondary))" />
+                    </svg>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="p-3 rounded-lg bg-muted/50">
+                      <p className="text-xs text-muted-foreground mb-1">Автомобиль</p>
+                      <p className="font-semibold text-sm">Toyota Camry</p>
+                      <p className="text-xs text-muted-foreground">Черный</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-muted/50">
+                      <p className="text-xs text-muted-foreground mb-1">Номер</p>
+                      <Badge variant="outline" className="text-sm font-mono">А777АА 777</Badge>
                     </div>
                   </div>
 
-                  <div className="flex gap-2 mt-6">
-                    <Button variant="outline" className="flex-1">
-                      <Icon name="Phone" size={18} className="mr-2" />
+                  <div className="flex gap-2">
+                    <Button variant="outline" className="flex-1 h-12">
+                      <Icon name="Phone" size={20} className="mr-2" />
                       Позвонить
                     </Button>
-                    <Button variant="outline" className="flex-1">
-                      <Icon name="MessageSquare" size={18} className="mr-2" />
+                    <Button variant="outline" className="flex-1 h-12">
+                      <Icon name="MessageSquare" size={20} className="mr-2" />
                       Написать
                     </Button>
+                    <Button variant="outline" size="icon" className="h-12 w-12">
+                      <Icon name="Share2" size={20} />
+                    </Button>
+                  </div>
+
+                  <Separator className="my-4" />
+
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Стоимость поездки</span>
+                    <span className="text-2xl font-heading font-bold text-primary">{calculatePrice()} ₽</span>
                   </div>
                 </CardContent>
               </Card>
@@ -198,10 +261,18 @@ const Index = () => {
           <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <Card className="border-primary/20 shadow-lg shadow-primary/5 overflow-hidden">
               <CardContent className="p-0">
-                <div className="relative h-[600px] bg-[#2d3436] overflow-hidden">
+                <div 
+                  ref={mapRef}
+                  className="relative h-[600px] bg-[#2d3436] overflow-hidden cursor-grab active:cursor-grabbing"
+                  onMouseDown={handleMapMouseDown}
+                  onMouseMove={handleMapMouseMove}
+                  onMouseUp={handleMapMouseUp}
+                  onMouseLeave={handleMapMouseUp}
+                >
                   <div 
-                    className="absolute inset-0"
+                    className="absolute inset-0 transition-transform"
                     style={{
+                      transform: `translate(${mapPosition.x}px, ${mapPosition.y}px)`,
                       backgroundImage: `
                         linear-gradient(rgba(45, 52, 54, 0.85), rgba(45, 52, 54, 0.85)),
                         repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(99, 110, 114, 0.3) 40px, rgba(99, 110, 114, 0.3) 41px),
@@ -326,16 +397,42 @@ const Index = () => {
                       </div>
                     </div>
                   )}
+
+                  {from && to && (
+                    <svg className="absolute inset-0 w-full h-full pointer-events-none z-5" style={{ opacity: 0.8 }}>
+                      <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                          <polygon points="0 0, 10 3, 0 6" fill="hsl(var(--primary))" />
+                        </marker>
+                      </defs>
+                      <path 
+                        d="M 20% 70% Q 35% 40%, 75% 25%" 
+                        stroke="hsl(var(--primary))" 
+                        strokeWidth="3" 
+                        fill="none" 
+                        strokeDasharray="8,4"
+                        markerEnd="url(#arrowhead)"
+                        className="animate-pulse-soft"
+                      />
+                    </svg>
+                  )}
                 </div>
 
                 <div className="p-4 bg-card/50 backdrop-blur border-t">
                   <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-primary animate-pulse-soft" />
-                      <span className="text-muted-foreground">Карта обновляется в реальном времени</span>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-primary animate-pulse-soft" />
+                        <span className="text-muted-foreground">Интерактивная карта</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Icon name="Move" size={14} />
+                        Перемещайте карту мышью
+                      </div>
                     </div>
-                    <Button variant="ghost" size="sm">
-                      <Icon name="Maximize2" size={16} />
+                    <Button variant="ghost" size="sm" onClick={() => setMapPosition({ x: 0, y: 0 })}>
+                      <Icon name="RotateCcw" size={16} className="mr-1" />
+                      Сбросить
                     </Button>
                   </div>
                 </div>
