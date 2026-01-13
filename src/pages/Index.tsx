@@ -198,27 +198,66 @@ const Index = () => {
           <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <Card className="border-primary/20 shadow-lg shadow-primary/5 overflow-hidden">
               <CardContent className="p-0">
-                <div className="relative h-[600px] bg-gradient-to-br from-muted/50 to-primary/10">
-                  <div className="absolute inset-0 opacity-20" 
+                <div className="relative h-[600px] bg-[#2d3436] overflow-hidden">
+                  <div 
+                    className="absolute inset-0"
                     style={{
                       backgroundImage: `
-                        repeating-linear-gradient(0deg, transparent, transparent 50px, hsl(var(--border)) 50px, hsl(var(--border)) 51px),
-                        repeating-linear-gradient(90deg, transparent, transparent 50px, hsl(var(--border)) 50px, hsl(var(--border)) 51px)
-                      `
+                        linear-gradient(rgba(45, 52, 54, 0.85), rgba(45, 52, 54, 0.85)),
+                        repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(99, 110, 114, 0.3) 40px, rgba(99, 110, 114, 0.3) 41px),
+                        repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(99, 110, 114, 0.3) 40px, rgba(99, 110, 114, 0.3) 41px)
+                      `,
+                      backgroundColor: '#34495e'
                     }}
-                  />
+                  >
+                    <div className="absolute inset-0 opacity-40"
+                      style={{
+                        backgroundImage: `
+                          radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                          radial-gradient(circle at 80% 70%, rgba(14, 165, 233, 0.15) 0%, transparent 50%)
+                        `
+                      }}
+                    />
+                    
+                    <svg className="absolute inset-0 w-full h-full" style={{ opacity: 0.4 }}>
+                      <path d="M 10,100 Q 150,50 300,100 T 590,100" stroke="rgba(249, 115, 22, 0.4)" strokeWidth="3" fill="none" />
+                      <path d="M 50,200 L 180,200 L 180,150 L 250,150 L 250,300" stroke="rgba(99, 110, 114, 0.5)" strokeWidth="2" fill="none" />
+                      <path d="M 350,250 L 450,250 L 450,180 L 520,180" stroke="rgba(99, 110, 114, 0.5)" strokeWidth="2" fill="none" />
+                      <path d="M 100,400 L 200,400 L 200,480 L 350,480" stroke="rgba(99, 110, 114, 0.5)" strokeWidth="2" fill="none" />
+                      <path d="M 400,350 Q 450,370 480,350 T 560,350" stroke="rgba(99, 110, 114, 0.5)" strokeWidth="2" fill="none" />
+                      
+                      <text x="140" y="110" fill="rgba(255, 255, 255, 0.3)" fontSize="10" fontWeight="600">Ленина ул.</text>
+                      <text x="280" y="165" fill="rgba(255, 255, 255, 0.3)" fontSize="10" fontWeight="600">Пушкина ул.</text>
+                      <text x="380" y="270" fill="rgba(255, 255, 255, 0.3)" fontSize="10" fontWeight="600">Гагарина пр.</text>
+                      <text x="220" y="425" fill="rgba(255, 255, 255, 0.3)" fontSize="10" fontWeight="600">Мира ул.</text>
+                      
+                      <rect x="160" y="160" width="15" height="15" fill="rgba(52, 152, 219, 0.3)" stroke="rgba(52, 152, 219, 0.6)" strokeWidth="1" />
+                      <rect x="420" y="360" width="20" height="20" fill="rgba(46, 204, 113, 0.3)" stroke="rgba(46, 204, 113, 0.6)" strokeWidth="1" />
+                      <rect x="110" y="410" width="12" height="12" fill="rgba(155, 89, 182, 0.3)" stroke="rgba(155, 89, 182, 0.6)" strokeWidth="1" />
+                    </svg>
+                    
+                    <div className="absolute top-[15%] right-[25%] w-20 h-16 bg-green-500/20 border border-green-500/40 rounded" title="Парк" />
+                    <div className="absolute bottom-[20%] left-[15%] w-24 h-24 bg-blue-500/15 border border-blue-500/30 rounded-full" title="Площадь" />
+                  </div>
                   
-                  <div className="absolute top-4 left-4 z-10">
+                  <div className="absolute top-4 left-4 z-20">
                     <Badge className="bg-background/90 backdrop-blur">
                       <Icon name="MapPin" size={14} className="mr-1" />
                       Доступно такси: {taxis.length}
+                    </Badge>
+                  </div>
+                  
+                  <div className="absolute top-4 right-4 z-20 flex gap-2">
+                    <Badge variant="outline" className="bg-background/90 backdrop-blur border-secondary/50">
+                      <Icon name="Satellite" size={14} className="mr-1 text-secondary" />
+                      Гибридный вид
                     </Badge>
                   </div>
 
                   {taxis.map((taxi, index) => (
                     <div
                       key={taxi.id}
-                      className="absolute cursor-pointer group animate-fade-in"
+                      className="absolute cursor-pointer group animate-fade-in z-10"
                       style={{
                         left: `${taxi.x}%`,
                         top: `${taxi.y}%`,
@@ -226,7 +265,7 @@ const Index = () => {
                       }}
                     >
                       <div className="relative">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg animate-pulse-soft border-4 border-background">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-2xl animate-pulse-soft border-4 border-background">
                           <Icon name="Car" size={20} />
                         </div>
                         
@@ -267,17 +306,23 @@ const Index = () => {
                   ))}
 
                   {from && (
-                    <div className="absolute left-[20%] bottom-[30%] animate-scale-in">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg border-4 border-background">
-                        <Icon name="MapPin" size={16} />
+                    <div className="absolute left-[20%] bottom-[30%] animate-scale-in z-10">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-2xl border-4 border-background">
+                        <Icon name="MapPin" size={18} />
+                      </div>
+                      <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                        <Badge variant="outline" className="bg-background/95 text-xs">Откуда</Badge>
                       </div>
                     </div>
                   )}
 
                   {to && (
-                    <div className="absolute right-[25%] top-[25%] animate-scale-in" style={{ animationDelay: '0.2s' }}>
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center shadow-lg border-4 border-background">
-                        <Icon name="Flag" size={16} />
+                    <div className="absolute right-[25%] top-[25%] animate-scale-in z-10" style={{ animationDelay: '0.2s' }}>
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center shadow-2xl border-4 border-background">
+                        <Icon name="Flag" size={18} />
+                      </div>
+                      <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                        <Badge variant="outline" className="bg-background/95 text-xs">Куда</Badge>
                       </div>
                     </div>
                   )}
